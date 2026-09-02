@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Timetable Sem 5 CMI</title>
+	<style>
+		
+		body {
+		/* Adds space at the top and bottom of the entire page */
+		padding-top: 20px;
+		padding-bottom: 20px;
+		
+		/* Optional: adds space on the left and right sides */
+		padding-left: 20px;
+		padding-right: 20px;	
+
+		/* Scales the entire page */
+		transform: scale(1.4);
+		transform-origin: top left;
+		/* Prevents potential clipping on the right edge */
+		width: 71.4%; 
+
+		}
+
+
+		/* Button styling */
+		.toggle-btn {
+			background: #222;
+			color: #fff;
+			border: 1px solid #444;
+			padding: 7px 16px;
+			font-family: monospace;
+			font-size: 13px;
+			cursor: pointer;
+			border-radius: 4px;
+			margin-top: 25px; /* Vertical space above the button */
+			display: inline-block;
+		}
+		.toggle-btn:hover {
+			background: #333;
+		}
+
+		/* Row glow (active day) */
+		.highlight-row {
+			background-color: rgba(255, 255, 255, 0.45);
+			box-shadow: 0 0 10px rgba(0, 0, 0, 0.25);
+			border-radius: 3px;
+			display: inline-block;
+			width: 100%;
+		}
+
+		/* Cell glow (active class slot) */
+		.highlight-cell {
+			background-color: #d6004b !important;
+			color: #ffffff !important;
+			font-weight: bold;
+			border-radius: 3px;
+			box-shadow: 0 0 12px #d6004b, 0 0 4px #fff;
+			display: inline-block;
+		}
+	</style>
+</head>
+<body style="background: lime">
+	<div id="prog_BP2" style="display: block; background: lime; width: 46em; padding: 10px; font-family: monospace;">
+		<pre style="text-align:center; margin-top: 0;">
+<b>Timetable for August--November 2026</b>
+<b>B.Sc. Mathematics &amp; Physics III year</b>
+
+<b>==============================================================================</b>
+<b> BP3 |09:10-10:25|10:30-11:45|11:50-13:05|14:00-15:15|15:30-16:45|17:00-18:15|</b>
+<b>=====+===========+===========+===========+===========+===========+===========+</b>
+<span id="row-1" class="day-row"> <b>Mon</b> <span class="cell" data-slots="7">|</span><span class="cell" data-slots="0">           </span>|<span class="cell" data-slots="1,2">     Physics Seminar   </span><span class="cell" data-slots="6">|</span><span class="cell" data-slots="3">           </span>|<span class="cell" data-slots="4">           </span>|<span class="cell" data-slots="5">           </span><span class="cell" data-slots="8">|</span></span>
+<span id="row-2" class="day-row"> <b>Tue</b> <span class="cell" data-slots="7">|</span><span class="cell" data-slots="0">           </span>|<span class="cell" data-slots="1">           </span>|<span class="cell" data-slots="2">   STMC    </span><span class="cell" data-slots="6">|</span><span class="cell" data-slots="3">           </span>|<span class="cell" data-slots="4">           </span>|<span class="cell" data-slots="5">   ISTP    </span><span class="cell" data-slots="8">|</span></span>
+<span id="row-3" class="day-row"> <b>Wed</b> <span class="cell" data-slots="7">|</span><span class="cell" data-slots="0">           </span>|<span class="cell" data-slots="1">   QMEC    </span>|<span class="cell" data-slots="2">           </span><span class="cell" data-slots="6">|</span><span class="cell" data-slots="3">   CPPH    </span>|<span class="cell" data-slots="4">   ISTP    </span>|<span class="cell" data-slots="5">   GER     </span><span class="cell" data-slots="8">|</span></span>
+<span id="row-4" class="day-row"> <b>Thu</b> <span class="cell" data-slots="7">|</span><span class="cell" data-slots="0">           </span>|<span class="cell" data-slots="1">           </span>|<span class="cell" data-slots="2">   STMC    </span><span class="cell" data-slots="6">|</span><span class="cell" data-slots="3">  QMEC(ex) </span>|<span class="cell" data-slots="4">           </span>|<span class="cell" data-slots="5">           </span><span class="cell" data-slots="8">|</span></span>
+<span id="row-5" class="day-row"> <b>Fri</b> <span class="cell" data-slots="7">|</span><span class="cell" data-slots="0">           </span>|<span class="cell" data-slots="1">   QMEC    </span>|<span class="cell" data-slots="2">   CPPH    </span><span class="cell" data-slots="6">|</span><span class="cell" data-slots="3">   QIQG    </span>|<span class="cell" data-slots="4">           </span>|<span class="cell" data-slots="5">   GER     </span><span class="cell" data-slots="8">|</span></span>
+<b>==============================================================================</b>
+		</pre>
+	
+		<pre>
+QMEC: Quantum Mechanics                         Ghanashyam Date         LH3
+ISTP: Intro to Symplectic Techniques in Physics  Alok Laddha            804
+STMC: Statistical Mechanics                     Ronak Soni              LH5
+CPPH: Computational Physics           Ajit Mehta/Prashant Kocherlakota  LH2
+		</pre>
+		<pre>
+GER:  German 1                                  Pavithra Ravishankar    LH5
+		</pre>
+		<pre>
+	<u><b>Not Courses</b></u>
+QIQG: Quantum Information and Quantum Gravity                           LH4
+		</pre>
+
+		<!-- Toggle Button at the bottom with vertical spacing -->
+		<button id="toggleBtn" class="toggle-btn" onclick="toggleHighlight()">Tracking: ON</button>
+	</div>
+
+	<script>
+		let isTrackingEnabled = true;
+
+		// Slot definitions converted into minutes from midnight
+		const slots = [
+			{ id: 7, start: 0,  end: 9 * 60 + 10 }, // 00:00 - 09:10
+			{ id: 0, start: 9 * 60 + 10,  end: 10 * 60 + 25 }, // 09:10 - 10:25
+			{ id: 1, start: 10 * 60 + 25, end: 11 * 60 + 45 }, // 10:25 - 11:45
+			{ id: 2, start: 11 * 60 + 45, end: 13 * 60 + 5  }, // 11:45 - 13:05
+			{ id: 6, start: 13 * 60 + 5, end: 14 * 60 + 0  }, // 13:05 - 14:00
+			{ id: 3, start: 14 * 60 + 0,  end: 15 * 60 + 15 }, // 14:00 - 15:15
+			{ id: 4, start: 15 * 60 + 15, end: 16 * 60 + 45 }, // 15:15 - 16:45
+			{ id: 5, start: 16 * 60 + 45,  end: 18 * 60 + 15 },  // 16:45 - 18:15
+			{ id: 8, start: 18 * 60 + 15,  end: 24 * 60 + 0 }  // 18:15 - 24:00
+		];
+
+		function clearHighlights() {
+			document.querySelectorAll('.highlight-row').forEach(el => el.classList.remove('highlight-row'));
+			document.querySelectorAll('.highlight-cell').forEach(el => el.classList.remove('highlight-cell'));
+		}
+
+		function updateTimetableHighlight() {
+			clearHighlights();
+			if (!isTrackingEnabled) return;
+
+			const now = new Date();
+			const day = now.getDay(); // 1 = Mon, ..., 5 = Fri
+			const currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+			const todayRow = document.getElementById(`row-${day}`);
+			if (todayRow) {
+				todayRow.classList.add('highlight-row');
+
+				const activeSlot = slots.find(s => currentMinutes >= s.start && currentMinutes < s.end);
+				if (activeSlot !== undefined) {
+					const cells = todayRow.querySelectorAll('.cell');
+					cells.forEach(cell => {
+						const slotIndices = cell.getAttribute('data-slots').split(',').map(Number);
+						if (slotIndices.includes(activeSlot.id)) {
+							cell.classList.add('highlight-cell');
+						}
+					});
+				}
+			}
+		}
+
+		function toggleHighlight() {
+			isTrackingEnabled = !isTrackingEnabled;
+			const btn = document.getElementById('toggleBtn');
+			btn.textContent = `Tracking: ${isTrackingEnabled ? 'ON' : 'OFF'}`;
+			updateTimetableHighlight();
+		}
+
+		updateTimetableHighlight();
+		setInterval(updateTimetableHighlight, 30000);
+	</script>
+</body>
+</html>
