@@ -68,11 +68,11 @@
 <b>==============================================================================</b>
 <b> BP3 |09:10-10:25|10:30-11:45|11:50-13:05|14:00-15:15|15:30-16:45|17:00-18:15|</b>
 <b>=====+===========+===========+===========+===========+===========+===========+</b>
-<span id="row-1" class="day-row"> <b>Mon</b> <span class="cell" data-slots="7">|</span><span class="cell" data-slots="0">           </span>|<span class="cell" data-slots="1,2">     Physics Seminar   </span><span class="cell" data-slots="6">|</span><span class="cell" data-slots="3">  QM1 TUT  </span>|<span class="cell" data-slots="4">           </span>|<span class="cell" data-slots="5">   ISTP    </span><span class="cell" data-slots="8">|</span></span>
+<span id="row-1" class="day-row"> <b>Mon</b> <span class="cell" data-slots="7">|</span><span class="cell" data-slots="0">           </span>|<span class="cell" data-slots="1,2" data-track="false">     Physics Seminar   </span><span class="cell" data-slots="6">|</span><span class="cell" data-slots="3" data-track="false">  QM1 TUT  </span>|<span class="cell" data-slots="4">           </span>|<span class="cell" data-slots="5">   ISTP    </span><span class="cell" data-slots="8">|</span></span>
 <span id="row-2" class="day-row"> <b>Tue</b> <span class="cell" data-slots="7">|</span><span class="cell" data-slots="0">           </span>|<span class="cell" data-slots="1">           </span>|<span class="cell" data-slots="2">   STMC    </span><span class="cell" data-slots="6">|</span><span class="cell" data-slots="3">           </span>|<span class="cell" data-slots="4">           </span>|<span class="cell" data-slots="5">           </span><span class="cell" data-slots="8">|</span></span>
 <span id="row-3" class="day-row"> <b>Wed</b> <span class="cell" data-slots="7">|</span><span class="cell" data-slots="0">           </span>|<span class="cell" data-slots="1">   QMEC    </span>|<span class="cell" data-slots="2">           </span><span class="cell" data-slots="6">|</span><span class="cell" data-slots="3">   CPPH    </span>|<span class="cell" data-slots="4">   ISTP    </span>|<span class="cell" data-slots="5">   GER     </span><span class="cell" data-slots="8">|</span></span>
-<span id="row-4" class="day-row"> <b>Thu</b> <span class="cell" data-slots="7">|</span><span class="cell" data-slots="0">           </span>|<span class="cell" data-slots="1">           </span>|<span class="cell" data-slots="2">   STMC    </span><span class="cell" data-slots="6">|</span><span class="cell" data-slots="3">  QMEC(ex) </span>|<span class="cell" data-slots="4">           </span>|<span class="cell" data-slots="5">           </span><span class="cell" data-slots="8">|</span></span>
-<span id="row-5" class="day-row"> <b>Fri</b> <span class="cell" data-slots="7">|</span><span class="cell" data-slots="0">           </span>|<span class="cell" data-slots="1">   QMEC    </span>|<span class="cell" data-slots="2">   CPPH    </span><span class="cell" data-slots="6">|</span><span class="cell" data-slots="3">   QIQG    </span>|<span class="cell" data-slots="4">           </span>|<span class="cell" data-slots="5">   GER     </span><span class="cell" data-slots="8">|</span></span>
+<span id="row-4" class="day-row"> <b>Thu</b> <span class="cell" data-slots="7">|</span><span class="cell" data-slots="0">           </span>|<span class="cell" data-slots="1">           </span>|<span class="cell" data-slots="2">   STMC    </span><span class="cell" data-slots="6">|</span><span class="cell" data-slots="3" data-track="false">  QMEC(ex) </span>|<span class="cell" data-slots="4">           </span>|<span class="cell" data-slots="5">           </span><span class="cell" data-slots="8">|</span></span>
+<span id="row-5" class="day-row"> <b>Fri</b> <span class="cell" data-slots="7">|</span><span class="cell" data-slots="0">           </span>|<span class="cell" data-slots="1">   QMEC    </span>|<span class="cell" data-slots="2">   CPPH    </span><span class="cell" data-slots="6">|</span><span class="cell" data-slots="3" data-track="false">   QIQG    </span>|<span class="cell" data-slots="4">           </span>|<span class="cell" data-slots="5">   GER     </span><span class="cell" data-slots="8">|</span></span>
 <b>==============================================================================</b>
 		</pre>
 	
@@ -92,6 +92,7 @@ QIQG: Quantum Information and Quantum Gravity                           LH4
 
 		<!-- Toggle Button at the bottom with vertical spacing -->
 		<button id="toggleBtn" class="toggle-btn" onclick="toggleHighlight()">Tracking: ON</button>
+		<span id="nextEvent" data-class="" data-minutes="" style="margin-left: 15px; font-family: monospace; font-size: 13px; font-weight: bold;"></span>
 	</div>
 
 	<script>
@@ -115,13 +116,90 @@ QIQG: Quantum Information and Quantum Gravity                           LH4
 			document.querySelectorAll('.highlight-cell').forEach(el => el.classList.remove('highlight-cell'));
 		}
 
+		// Calculates the next class using the existing slots array
+		function getNextClass(now) {
+			const schedule = [];
+			for (let d = 1; d <= 5; d++) {
+				const row = document.getElementById(`row-${d}`);
+				if (!row) continue;
+
+				row.querySelectorAll('.cell').forEach(cell => {
+					// Exclude disabled classes
+					if (cell.getAttribute('data-track') === 'false') return;
+
+					const text = cell.textContent.trim();
+					const slotAttr = cell.getAttribute('data-slots');
+					if (text && text !== '|' && slotAttr) {
+						const firstSlotId = Number(slotAttr.split(',')[0]);
+						const slot = slots.find(s => s.id === firstSlotId);
+						// Exclude break slots (7, 6, 8)
+						if (slot && slot.id !== 7 && slot.id !== 6 && slot.id !== 8) {
+							schedule.push({ name: text, day: d, start: slot.start });
+						}
+					}
+				});
+			}
+
+			const currentDay = now.getDay();
+			const currentMinutes = now.getHours() * 60 + now.getMinutes();
+			const nowTotal = currentDay * 24 * 60 + currentMinutes;
+
+			let next = null;
+			let minDiff = Infinity;
+
+			schedule.forEach(item => {
+				let diff = (item.day * 24 * 60 + item.start) - nowTotal;
+				if (diff <= 0) diff += 7 * 24 * 60; // Wrap around to next week
+				if (diff < minDiff) {
+					minDiff = diff;
+					next = { name: item.name, diffMinutes: diff };
+				}
+			});
+
+			return next;
+		}
+
+		// Omits Days, Hrs, or Mins when they are 0
+		function formatTimeRemaining(totalMinutes) {
+			const days = Math.floor(totalMinutes / 1440);
+			const hours = Math.floor((totalMinutes % 1440) / 60);
+			const mins = totalMinutes % 60;
+
+			const parts = [];
+			if (days > 0) parts.push(`${days} Day${days > 1 ? 's' : ''}`);
+			if (hours > 0) parts.push(`${hours} Hr${hours > 1 ? 's' : ''}`);
+			if (mins > 0 || parts.length === 0) parts.push(`${mins} Min${mins !== 1 ? 's' : ''}`);
+
+			return parts.join(' ');
+		}
+
 		function updateTimetableHighlight() {
 			clearHighlights();
-			if (!isTrackingEnabled) return;
+			const nextEl = document.getElementById('nextEvent');
+
+			if (!isTrackingEnabled) {
+				if (nextEl) {
+					nextEl.textContent = '';
+					nextEl.removeAttribute('data-class');
+					nextEl.removeAttribute('data-minutes');
+				}
+				return;
+			}
 
 			const now = new Date();
-			const day = now.getDay(); // 1 = Mon, ..., 5 = Fri
+			const day = now.getDay();
 			const currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+			if (nextEl) {
+				const next = getNextClass(now);
+				if (next) {
+					nextEl.textContent = `${next.name} starts in ${formatTimeRemaining(next.diffMinutes)}`;
+					nextEl.setAttribute('data-class', next.name);
+					nextEl.setAttribute('data-minutes', next.diffMinutes);
+				} else {
+					nextEl.textContent = '';
+				}
+			}
 
 			const todayRow = document.getElementById(`row-${day}`);
 			if (todayRow) {
@@ -146,6 +224,12 @@ QIQG: Quantum Information and Quantum Gravity                           LH4
 			btn.textContent = `Tracking: ${isTrackingEnabled ? 'ON' : 'OFF'}`;
 			updateTimetableHighlight();
 		}
+
+
+		
+
+
+
 
 		updateTimetableHighlight();
 		setInterval(updateTimetableHighlight, 30000);
